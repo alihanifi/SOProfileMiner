@@ -1,0 +1,63 @@
+{
+  "all": [
+    {
+      "key": "startup",
+      "values": [
+        "Hello!\n",
+        "This program is a webpage extractor developed for extracting user profile data and activity from StackOverflow website!",
+        "Type \"help\" to display actions and options available",
+        "This program uses StacMan and StackApps API - Please register your app and get key from ",
+        "This project was developed by Ali Hanifi - Spring 2022\n"
+      ]
+    },
+    {
+      "key": "help",
+      "values": [
+        "For more information on each command type help [command name] \n",
+        "KEY [your key]                               Sets your application key",
+        "SHOW [user id] [data part]                   Shows profile data by user id",
+        "SAVE [user id] [data part] [folder path]     Saves data by user id in a csv file",
+        "LIST [data part] [csv path]                  Saves data by a list of users in a csv file\n"
+      ]
+    },
+    {
+      "key": "key",
+      "values": [ "KEY [your key]        Sets your application key\nParameters:",
+                  "   1.[your key]: StackApps provides a key to access the data, use that key here!\n"
+      ]
+    },
+    {
+      "key": "show",
+      "values": [
+        "SHOW [user id] [data part]       Shows profile data by user id\nParameters:",
+        "   1.[user id]: User Id of any user on StackoverFlow",
+        "   2.[data part]: Only one of these options => {summary, reputation, comments, asnwers, questions}\n"
+      ]
+    },
+    {
+      "key": "save",
+      "values": [
+        "SAVE [user id] [data part] [folder path]     Saves data by user id in a csv file\nParameters:",
+        "   1.[user id]: User Id of any user on StackoverFlow",
+        "   2.[data part]: Only one of these options => {summary, reputation, comments, asnwers, questions}",
+        "   3.[folder path]: Path that you want to create the file in\n"
+      ]
+    },
+    {
+      "key": "list",
+      "values": [
+        "LIST [data part] [csv path]      Saves data by a list of users in a csv file\nParameters:",
+        "   1.[data part]: Only one of these options => {summary, reputation, comments, asnwers, questions}\n",
+        "   2.[csv path]: Path of the file of user ids - will read first column only"
+      ]
+    },
+    {
+      "key": "ENT_CMD",
+      "values": [ "\nEnter command: " ]
+    },
+    {
+      "key": "HELP_NOT_REC",
+      "values": ["Help command not recognized - Please enter a valid help command [key, show, save, list]! \n********************"]
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+C:\Users\Ali\source\repos\SOProfileCrawler\bin\Debug\SOProfileCrawler.exe.config
+C:\Users\Ali\source\repos\SOProfileCrawler\bin\Debug\SOProfileCrawler.exe
+C:\Users\Ali\source\repos\SOProfileCrawler\bin\Debug\SOProfileCrawler.pdb
+C:\Users\Ali\source\repos\SOProfileCrawler\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Ali\source\repos\SOProfileCrawler\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Ali\source\repos\SOProfileCrawler\obj\Debug\SOProfileCrawler.csprojAssemblyReference.cache
+C:\Users\Ali\source\repos\SOProfileCrawler\obj\Debug\SOProfileCrawler.csproj.CoreCompileInputs.cache
+C:\Users\Ali\source\repos\SOProfileCrawler\obj\Debug\SOProfileCrawler.csproj.CopyComplete
+C:\Users\Ali\source\repos\SOProfileCrawler\obj\Debug\SOProfileCrawler.exe
+C:\Users\Ali\source\repos\SOProfileCrawler\obj\Debug\SOProfileCrawler.pdb
+C:\Users\Ali\source\repos\SOProfileCrawler\bin\Debug\strings.json
+C:\Users\Ali\source\repos\SOProfileCrawler\bin\Debug\HtmlAgilityPack.dll
+C:\Users\Ali\source\repos\SOProfileCrawler\bin\Debug\HtmlAgilityPack.pdb
+C:\Users\Ali\source\repos\SOProfileCrawler\bin\Debug\HtmlAgilityPack.xml
+C:\Users\Ali\source\repos\SOProfileCrawler\bin\Debug\StacMan.dll
+C:\Users\Ali\source\repos\SOProfileCrawler\bin\Debug\StacMan.pdb
+C:\Users\Ali\source\repos\SOProfileCrawler\bin\Debug\StacMan.xml

@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30711.63
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SOProfileCrawler", "SOProfileCrawler.csproj", "{E41CC7AE-FAD6-4747-8A13-929AFD7DBBEA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E41CC7AE-FAD6-4747-8A13-929AFD7DBBEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E41CC7AE-FAD6-4747-8A13-929AFD7DBBEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E41CC7AE-FAD6-4747-8A13-929AFD7DBBEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E41CC7AE-FAD6-4747-8A13-929AFD7DBBEA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B06128C5-E35C-410F-A6DE-CB4CD0A6CB96}
+	EndGlobalSection
+EndGlobal
