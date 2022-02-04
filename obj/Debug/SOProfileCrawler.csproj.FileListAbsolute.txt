@@ -9,9 +9,6 @@ C:\Users\Ali\source\repos\SOProfileCrawler\obj\Debug\SOProfileCrawler.csproj.Cop
 C:\Users\Ali\source\repos\SOProfileCrawler\obj\Debug\SOProfileCrawler.exe
 C:\Users\Ali\source\repos\SOProfileCrawler\obj\Debug\SOProfileCrawler.pdb
 C:\Users\Ali\source\repos\SOProfileCrawler\bin\Debug\strings.json
-C:\Users\Ali\source\repos\SOProfileCrawler\bin\Debug\HtmlAgilityPack.dll
-C:\Users\Ali\source\repos\SOProfileCrawler\bin\Debug\HtmlAgilityPack.pdb
-C:\Users\Ali\source\repos\SOProfileCrawler\bin\Debug\HtmlAgilityPack.xml
 C:\Users\Ali\source\repos\SOProfileCrawler\bin\Debug\StacMan.dll
 C:\Users\Ali\source\repos\SOProfileCrawler\bin\Debug\StacMan.pdb
 C:\Users\Ali\source\repos\SOProfileCrawler\bin\Debug\StacMan.xml

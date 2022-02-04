@@ -34,5 +34,41 @@ namespace SOProfileCrawler.Properties {
                 this["apiKey"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1500")]
+        public int reqInterval {
+            get {
+                return ((int)(this["reqInterval"]));
+            }
+            set {
+                this["reqInterval"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20000")]
+        public int maxSleep {
+            get {
+                return ((int)(this["maxSleep"]));
+            }
+            set {
+                this["maxSleep"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3000")]
+        public int netTimeout {
+            get {
+                return ((int)(this["netTimeout"]));
+            }
+            set {
+                this["netTimeout"] = value;
+            }
+        }
     }
 }

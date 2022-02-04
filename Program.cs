@@ -5,8 +5,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace SOProfileCrawler
 {
@@ -14,16 +12,24 @@ namespace SOProfileCrawler
     {
         static string apiKey { get { return Properties.Settings.Default.apiKey; } }
         static readonly string[] acceptableTypes = { "summary", "reputation", "answers", "questions", "comments" };
-        static readonly string[] acceptableHelps = { "show", "save", "list", "key" };
+        static readonly string[] acceptableHelps = { "show", "save", "list", "key", "slpt", "nett", "reqt" };
         static readonly string listSeperator = CultureInfo.CurrentCulture.TextInfo.ListSeparator;
-        static StringHandler handler;
+
         static void Main(string[] args)
         {
-            handler = new StringHandler();
-            handler.WriteLine("startup");
+            StringHandler.Setup();
+            StringHandler.WriteLine("startup");
 
             if (apiKey.Length > 1)
-                Console.WriteLine(string.Format("Your current key is {0} - If you wish to change it, Run KEY command", apiKey));
+                StringHandler.WriteLine("STARTUP_KEY", apiKey);
+
+            object[] times = new object[3];
+            times[0] = Properties.Settings.Default.reqInterval;
+            times[1] = Properties.Settings.Default.maxSleep;
+            times[2] = Properties.Settings.Default.netTimeout;
+            
+            Console.WriteLine("");
+            StringHandler.WriteLine("TIMES_CFG", times);
 
             string cki;
             do
@@ -33,18 +39,21 @@ namespace SOProfileCrawler
                 if (cki == "help" || cki.StartsWith("help "))
                 {
                     string[] chars = cki.Split(char.Parse(" "));
-                    if(chars.Count() <= 1)
+                    if (chars.Count() <= 1)
                     {
-                        handler.WriteLine("help");
+                        StringHandler.WriteLine("help");
                     }
                     else
                     {
                         string helpType = chars[1];
-                        if(Array.IndexOf(acceptableHelps, helpType) != -1)
-                            handler.WriteLine(helpType);
-                        else { handler.WriteLine("HELP_NOT_REC"); continue; }
+                        if (Array.IndexOf(acceptableHelps, helpType) != -1)
+                            StringHandler.WriteLine(helpType);
+                        else {
+                            StringHandler.WriteLine("HELP_NOT_REC");
+                            continue;
+                        }
                     }
-                    
+
                 }
                 else if (cki.StartsWith("key "))
                 {
@@ -52,13 +61,49 @@ namespace SOProfileCrawler
                     string newKey;
                     if (chars.Count() <= 1)
                     {
-                        Console.WriteLine("Please enter your key! ");
+                        StringHandler.WriteLine("ENTER_KEY");
                         continue;
                     }
                     newKey = chars[1];
                     Properties.Settings.Default.apiKey = newKey;
                     Properties.Settings.Default.Save();
-                    Console.WriteLine("Key Saved!");
+                    StringHandler.WriteLine("KEY_SAVE");
+                }
+                else if (cki.StartsWith("nett ") || cki.StartsWith("slpt ") || cki.StartsWith("reqt "))
+                {
+                    string[] chars = cki.Split(char.Parse(" "));
+                    string newTime;
+                    if (chars.Count() <= 1)
+                    {
+                        StringHandler.WriteLine("ENTER_TIME");
+                        continue;
+                    }
+                    newTime = chars[1];
+                    int nt;
+                    if(!int.TryParse(newTime, out nt))
+                    {
+                        StringHandler.WriteLine("ENTER_TIME");
+                        continue;
+                    }
+                    if(nt < 0)
+                    {
+                        StringHandler.WriteLine("ENTER_TIME");
+                        continue;
+                    }
+                    switch(chars[0])
+                    {
+                        case "nett":
+                            Properties.Settings.Default.netTimeout = nt;
+                            break;
+                        case "slpt":
+                            Properties.Settings.Default.maxSleep = nt;
+                            break;
+                        case "reqt":
+                            Properties.Settings.Default.reqInterval = nt;
+                            break;
+                    }
+                    Properties.Settings.Default.Save();
+                    StringHandler.WriteLine("TIME_SAVE");
                 }
                 else if (cki.StartsWith("show ") || cki.StartsWith("save "))
                 {
@@ -72,94 +117,115 @@ namespace SOProfileCrawler
                         if (!int.TryParse(userIdString, out userId)) { throw new Exception(""); }
 
                     }
-                    catch { Console.WriteLine("UserId must be a Number! \n ====="); continue; }
+                    catch
+                    {
+                        StringHandler.WriteLine("USER_ID_ERROR");
+                        continue;
+                    }
 
                     string dataType;
                     try { dataType = chars[2].ToLower(); }
                     catch { dataType = "summary"; }
 
                     if (Array.IndexOf(acceptableTypes, dataType) == -1)
-                    { Console.WriteLine("Data type not recognized! \n ====="); continue; }
+                    {
+                        StringHandler.WriteLine("DATA_TYPE_NOT_REC");
+                        continue;
+                    }
 
                     string filePath = string.Empty;
                     if (action == "save")
                     {
-                        try {
+                        try
+                        {
                             filePath = chars[3].ToLower();
                             filePath = cki;
                             filePath = cki.Substring(5).Substring(chars[1].Length + 1).Substring(chars[2].Length + 1);
                         }
-                        catch { Console.WriteLine("Folder path must be provided! \n ====="); continue; }
+                        catch
+                        {
+                            StringHandler.WriteLine("FOLDER_PATH_NOT_PROV");
+                            continue;
+                        }
                     }
 
                     ProgressBar progress = new ProgressBar();
-                    Crawler cr = null;
-                    if (dataType == "summary")
-                        cr = new Crawler(PageType.summary, userId);
-                    if (dataType == "reputation")
-                        cr = new Crawler(PageType.reputation, userId);
-                    if (dataType == "answers")
-                        cr = new Crawler(PageType.answers, userId);
-                    if (dataType == "questions")
-                        cr = new Crawler(PageType.questions, userId);
-                    if (dataType == "comments")
-                        cr = new Crawler(PageType.comments, userId);
-
-                    object response = cr.StartCrawl(progress);
-                    progress.Report(1);
-                    System.Threading.Thread.Sleep(500);
-                    progress.Dispose();
-
-                    if (response == null)
+                    Crawler crawler;
+                    PageType pageType = (PageType)Enum.Parse(typeof(PageType), dataType);
+                    crawler = new Crawler(pageType, userId);
+                    object response = null;
+                    try
                     {
-                        Console.WriteLine("There was no response OR There was a problem getting data! \n =====");
+                        response = crawler.StartCrawl(progress);
+                        progress.Report(1);
+                        System.Threading.Thread.Sleep(500);
+                        progress.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        progress.Dispose();
+                        ExceptionHandler.Handle(ex);
+                        continue;
+                    }
+
+                    if (response == null) {
+                        StringHandler.WriteLine("NO_RESPONSE");
                         continue;
                     }
 
                     if (action == "show")
                     {
-                        if (response.GetType() == typeof(PrSum))
+                        if (response.GetType() == typeof(UserSummary))
                         {
-                            PrSum summary = (PrSum)response;
-                            Console.WriteLine(summary);
+                            UserSummary summary = (UserSummary)response;
+                            StringHandler.WriteLog(summary.ToString(), ConsoleColor.DarkCyan);
                         }
                         if (response is IList)
                         {
                             IList array = (IList)response;
                             foreach (var t in array)
-                                Console.WriteLine(t.ToString());
+                                StringHandler.WriteLog(t.ToString(), ConsoleColor.DarkCyan, true);
                         }
                     }
                     else if (action == "save")
                     {
-                        if (!Directory.Exists(filePath)) { Console.WriteLine("Folder path must be provided! \n ====="); continue; }
+                        if (!Directory.Exists(filePath))
+                        {
+                            StringHandler.WriteLine("FOLDER_PATH_NOT_PROV");
+                            continue;
+                        }
                         filePath = GetFileName(filePath, dataType, userId);
                         string csvContent = string.Empty;
-                        string listSeperator = CultureInfo.CurrentCulture.TextInfo.ListSeparator;
-                        if (response.GetType() == typeof(PrSum))
+                        if (response.GetType() == typeof(UserSummary))
                         {
-                            PrSum summary = (PrSum)response;
-                            csvContent = string.Format("Username{0}Reputation{0}Gold Badge{0}Silver Badge{0}Bronze Badge{0}Answer Count{0}Question Count\n", listSeperator);
+                            UserSummary summary = (UserSummary)response;
+                            csvContent = StringHandler.GetCSV("SUMMARY_HEADER");
                             csvContent += summary.ToCsv();
                         }
                         if (response is IList)
                         {
-                            if (response.GetType() == typeof(List<Ans>))
+                            if (response.GetType() == typeof(List<UserAnswer>))
                             {
-                                csvContent = string.Format("Answer Date{0}Vote Count{0}Is Accepted\n", listSeperator);
-                                foreach (var t in (List<Ans>)response)
+                                csvContent = StringHandler.GetCSV("ANSWER_HEADER");
+                                foreach (var t in (List<UserAnswer>)response)
                                     csvContent += t.ToCsv();
                             }
-                            else if (response.GetType() == typeof(List<Qtn>))
+                            else if (response.GetType() == typeof(List<UserQuestion>))
                             {
-                                csvContent = string.Format("Ask Date{0}Answer Count{0}Vote Count{0}Has Answer{0}View Count{0}Bookmark Count\n", listSeperator);
-                                foreach (var t in (List<Qtn>)response)
+                                csvContent = StringHandler.GetCSV("QUESTION_HEADER");
+                                foreach (var t in (List<UserQuestion>)response)
                                     csvContent += t.ToCsv();
                             }
-                            else if (response.GetType() == typeof(List<Rpt>))
+                            else if (response.GetType() == typeof(List<UserReputation>))
                             {
-                                csvContent = string.Format("Earned Date{0}Value\n", listSeperator);
-                                foreach (var t in (List<Rpt>)response)
+                                csvContent = StringHandler.GetCSV("REP_HEADER");
+                                foreach (var t in (List<UserReputation>)response)
+                                    csvContent += t.ToCsv();
+                            }
+                            else if (response.GetType() == typeof(List<UserComment>))
+                            {
+                                csvContent = StringHandler.GetCSV("COMMENT_HEADER");
+                                foreach (var t in (List<UserComment>)response)
                                     csvContent += t.ToCsv();
                             }
                         }
@@ -168,11 +234,11 @@ namespace SOProfileCrawler
                         {
                             using (var tw = new StreamWriter(filePath, true))
                                 tw.Write(csvContent);
-                            Console.WriteLine(string.Format("File saved in {0}", filePath));
+                            StringHandler.WriteLine("FILE_SAVED", filePath);
                         }
                         catch
                         {
-                            Console.WriteLine("Could not access file path! \n =====");
+                            StringHandler.WriteLine("FILE_NO_ACCESS");
                         }
                     }
                 }
@@ -187,17 +253,38 @@ namespace SOProfileCrawler
                         listPath = cki;
                         listPath = cki.Substring(5).Substring(chars[1].Length + 1);
                     }
-                    catch { Console.WriteLine("Please provide a file path! \n ====="); continue; }
+                    catch
+                    {
+                        StringHandler.WriteLine("PROVIDE_FILE_PATH");
+                        continue;
+                    }
 
-                    try { dataType = chars[1].ToLower(); }
-                    catch { dataType = "summary"; }
+                    try
+                    {
+                        dataType = chars[1].ToLower();
+                    }
+                    catch
+                    {
+                        dataType = "summary";
+                    }
 
                     if (Array.IndexOf(acceptableTypes, dataType) == -1)
-                    { Console.WriteLine("Data type not recognized! \n ====="); continue; }
+                    {
+                        StringHandler.WriteLine("DATA_TYPE_NOT_REC");
+                        continue;
+                    }
 
-                    if (!File.Exists(listPath)) { Console.WriteLine("File is not accessible! \n ====="); continue; }
+                    if (!File.Exists(listPath))
+                    {
+                        StringHandler.WriteLine("FILE_NO_ACCESS");
+                        continue;
+                    }
                     FileInfo info = new FileInfo(listPath);
-                    if (info.Extension.ToLower() != ".csv") { Console.WriteLine("List must be a csv file! \n ====="); continue; }
+                    if (info.Extension.ToLower() != ".csv")
+                    {
+                        StringHandler.WriteLine("LIST_MUST_CSV");
+                        continue;
+                    }
 
                     List<int> userIds = new List<int>();
                     using (StreamReader sr = new StreamReader(listPath))
@@ -212,98 +299,99 @@ namespace SOProfileCrawler
                                 if (int.TryParse(values[0], out uid))
                                     userIds.Add(uid);
                             }
-                            catch { continue; }
+                            catch
+                            {
+                                continue;
+                            }
                         }
                     }
 
-                    if (userIds.Count <= 0) { Console.WriteLine("Could not find any IDs in file! \n ====="); continue; }
+                    if (userIds.Count <= 0)
+                    {
+                        StringHandler.WriteLine("CANT_FIND_ID");
+                        continue;
+                    }
 
                     StringBuilder stringBuilder = new StringBuilder();
-                    string format;
                     string header;
                     switch (dataType)
                     {
                         case "summary":
-                            format = "{0},{1},{2},{3},{4},{5},{6},{7},{8}\n";
-                            format = format.Replace(",", CultureInfo.CurrentCulture.TextInfo.ListSeparator);
-                            header = string.Format(format, "Username", "Reputation", "Gold Badge Count", "Silver Badge Count",
-                                "Bronze Badge Count", "Answer Count", "Question Count", "Age", "Signup Date");
+                            header = StringHandler.GetCSV("SUMMARY_HEADER");
                             stringBuilder.Append(string.Format("User ID{0}{1}", listSeperator, header));
                             break;
                         case "reputation":
-                            format = "{0},{1}\n";
-                            format = format.Replace(",", CultureInfo.CurrentCulture.TextInfo.ListSeparator);
-                            header = string.Format(format, "Earn Date", "Value");
+                            header = StringHandler.GetCSV("REP_HEADER");
                             stringBuilder.Append(string.Format("User ID{0}{1}", listSeperator, header));
                             break;
                         case "answers":
-                            format = "{0},{1},{2},{3}\n";
-                            format = format.Replace(",", CultureInfo.CurrentCulture.TextInfo.ListSeparator);
-                            header = string.Format(format, "Answer Date", "Upvote Count", "Downvote Count", "Is Accepted");
+                            header = StringHandler.GetCSV("ANSWER_HEADER");
                             stringBuilder.Append(string.Format("User ID{0}{1}", listSeperator, header));
                             break;
                         case "questions":
-                            format = "{0},{1},{2},{3},{4},{5},{6}\n";
-                            format = format.Replace(",", CultureInfo.CurrentCulture.TextInfo.ListSeparator);
-                            header = string.Format(format, "Ask Date", "Answer Count", "Upvote Count", "Downvote Count", "Has Answer",
-                                        "View Count", "Bookmark Count");
+                            header = StringHandler.GetCSV("QUESTION_HEADER");
                             stringBuilder.Append(string.Format("User ID{0}{1}", listSeperator, header));
                             break;
                         case "comments":
-                            format = "{0},{1}\n";
-                            format = format.Replace(",", CultureInfo.CurrentCulture.TextInfo.ListSeparator);
-                            header = string.Format(format, "Post Date", "Score");
+                            header = StringHandler.GetCSV("COMMENT_HEADER");
                             stringBuilder.Append(string.Format("User ID{0}{1}", listSeperator, header));
                             break;
                     }
 
                     int count = 1;
+                    PageType pageType = (PageType)Enum.Parse(typeof(PageType), dataType);
                     foreach (int ui in userIds)
                     {
-                        Console.Write("{2} : Getting {0} data for user {1} =>  ", dataType, ui, count);
+                        StringHandler.Write("GETTING_DATA", new object[] { dataType, ui, count });
                         count += 1;
                         ProgressBar progress = new ProgressBar();
                         Crawler cr = null;
-                        if (dataType == "summary")
-                            cr = new Crawler(PageType.summary, ui);
-                        if (dataType == "reputation")
-                            cr = new Crawler(PageType.reputation, ui);
-                        if (dataType == "answers")
-                            cr = new Crawler(PageType.answers, ui);
-                        if (dataType == "questions")
-                            cr = new Crawler(PageType.questions, ui);
-                        if (dataType == "comments")
-                            cr = new Crawler(PageType.comments, ui);
+                        cr = new Crawler(pageType, ui);
 
-                        object response = cr.StartCrawl(progress);
-                        progress.Report(1);
-                        System.Threading.Thread.Sleep(100);
-                        progress.Dispose();
-                        if (response == null) { Console.Write("No data found!  "); }
+                        object response = null;
+
+                        try
+                        {
+                            response = cr.StartCrawl(progress);
+                            progress.Report(1);
+                            System.Threading.Thread.Sleep(100);
+                            progress.Dispose();
+                        }
+                        catch(Exception ex)
+                        {
+                            progress.Dispose();
+                            ExceptionHandler.Handle(ex);
+                        }
+                        
+                       
+                        if (response == null)
+                        {
+                            StringHandler.Write("NO_DATA");
+                        }
                         else
                         {
-                            if (response.GetType() == typeof(PrSum))
+                            if (response.GetType() == typeof(UserSummary))
                             {
-                                PrSum summary = (PrSum)response;
+                                UserSummary summary = (UserSummary)response;
                                 stringBuilder.Append(string.Format("{0}{1}{2}", ui, listSeperator, summary.ToCsv()));
                             }
                             if (response is IList)
                             {
-                                if (response.GetType() == typeof(List<Ans>))
-                                    foreach (var t in (List<Ans>)response)
+                                if (response.GetType() == typeof(List<UserAnswer>))
+                                    foreach (var t in (List<UserAnswer>)response)
                                         stringBuilder.Append(string.Format("{0}{1}{2}", ui, listSeperator, t.ToCsv()));
-                                else if (response.GetType() == typeof(List<Qtn>))
-                                    foreach (var t in (List<Qtn>)response)
+                                else if (response.GetType() == typeof(List<UserQuestion>))
+                                    foreach (var t in (List<UserQuestion>)response)
                                         stringBuilder.Append(string.Format("{0}{1}{2}", ui, listSeperator, t.ToCsv()));
-                                else if (response.GetType() == typeof(List<Rpt>))
-                                    foreach (var t in (List<Rpt>)response)
+                                else if (response.GetType() == typeof(List<UserReputation>))
+                                    foreach (var t in (List<UserReputation>)response)
                                         stringBuilder.Append(string.Format("{0}{1}{2}", ui, listSeperator, t.ToCsv()));
-                                else if (response.GetType() == typeof(List<Cmt>))
-                                    foreach (var t in (List<Cmt>)response)
+                                else if (response.GetType() == typeof(List<UserComment>))
+                                    foreach (var t in (List<UserComment>)response)
                                         stringBuilder.Append(string.Format("{0}{1}{2}", ui, listSeperator, t.ToCsv()));
                             }
                         }
-                        Console.Write(" Done!\n");
+                        StringHandler.Write("DONE");
                     }
 
                     string filePath = GetFileName(info.Directory.FullName, dataType);
@@ -312,77 +400,40 @@ namespace SOProfileCrawler
                     {
                         using (var tw = new StreamWriter(filePath, true))
                             tw.Write(stringBuilder.ToString());
-                        Console.WriteLine(string.Format("File saved in {0}", filePath));
+                        StringHandler.WriteLine("FILE_SAVED", filePath);
                     }
-                    catch { Console.WriteLine("Could not access file path! \n ====="); }
+                    catch
+                    {
+                        StringHandler.WriteLine("FILE_NO_ACCESS");
+                    }
 
                 }
-                else { Console.WriteLine("Command not recognized! \n ====="); }
+                else { StringHandler.WriteLine("CMD_NOT_REC"); }
             } while (cki != "exit");
-            
+
 
         }
         static string GetCommand()
         {
-            handler.Write("ENT_CMD");
+            Console.WriteLine("");
+            StringHandler.Write("ENT_CMD");
             string line = Console.ReadLine();
             return line;
         }
         static string GetFileName(string directoryPath, string dataType, int userId = 0)
         {
             string filePath = string.Empty;
-            if(userId == 0)
+            if (userId != 0)
                 filePath = string.Format("{0}\\{1}_{2}", directoryPath, userId, dataType).Replace("\\\\", "\\").Replace("\\\\", "\\");
             else
                 filePath = string.Format("{0}\\{1}", directoryPath, dataType).Replace("\\\\", "\\").Replace("\\\\", "\\");
 
             while (File.Exists(filePath + ".csv"))
-                filePath += Guid.NewGuid().ToString().ToUpper().Substring(0, 5);
+                filePath += "_" + Guid.NewGuid().ToString().ToUpper().Substring(0, 5);
             return filePath + ".csv";
         }
     }
 
-    public class StringHandler
-    {
-        Strings data;
-       
-        public StringHandler()
-        {
-            string exePath = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
-            string jsonPath = string.Format("{0}/{1}",exePath, "strings.json");
-            string jsonData = string.Empty;
-            try
-            {
-                using (StreamReader sr = File.OpenText(jsonPath))
-                    jsonData = sr.ReadToEnd();
-                data = JsonConvert.DeserializeObject<Strings>(jsonData);
-            }
-            catch(Exception ex)
-            { Console.WriteLine(string.Format("Error = {0} \n Press any key to terminate"), ex.Message); }
-            
-        }
-        public void WriteLine(string what)
-        {
-            IList<string> init = null;
-            init = data.all.Where(x => x.key == what).FirstOrDefault().values;
-            foreach (string sx in init)
-                Console.WriteLine(sx);
-        }
-        public void Write(string what)
-        {
-            IList<string> init = null;
-            init = data.all.Where(x => x.key == what).FirstOrDefault().values;
-            foreach (string sx in init)
-                Console.Write(sx);
-        }
-    }
-    public class All
-    {
-        public string key { get; set; }
-        public IList<string> values { get; set; }
-    }
-    public class Strings
-    {
-        public IList<All> all { get; set; }
-    }
+
+
 }

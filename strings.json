@@ -6,58 +6,224 @@
         "Hello!\n",
         "This program is a webpage extractor developed for extracting user profile data and activity from StackOverflow website!",
         "Type \"help\" to display actions and options available",
-        "This program uses StacMan and StackApps API - Please register your app and get key from ",
+        "This program uses StacMan and StackApps API - Please register your app and get key from StackExchange",
         "This project was developed by Ali Hanifi - Spring 2022\n"
-      ]
+      ],
+      "color": "Yellow"
     },
     {
       "key": "help",
       "values": [
         "For more information on each command type help [command name] \n",
-        "KEY [your key]                               Sets your application key",
-        "SHOW [user id] [data part]                   Shows profile data by user id",
-        "SAVE [user id] [data part] [folder path]     Saves data by user id in a csv file",
-        "LIST [data part] [csv path]                  Saves data by a list of users in a csv file\n"
-      ]
+        "   KEY [your key]                               Sets your application key",
+        "   NETT [time]                                  Sets internet connection timeout in miliseconds",
+        "   SLPT [time]                                  Sets maximum sleep time in miliseconds",
+        "   REQT [time]                                  Sets interval between requests time in miliseconds",
+        "   SHOW [user id] [data part]                   Shows profile data by user id",
+        "   SAVE [user id] [data part] [folder path]     Saves data by user id in a csv file",
+        "   LIST [data part] [csv path]                  Saves data by a list of users in a csv file\n"
+      ],
+      "color": "Cyan"
     },
     {
       "key": "key",
-      "values": [ "KEY [your key]        Sets your application key\nParameters:",
-                  "   1.[your key]: StackApps provides a key to access the data, use that key here!\n"
-      ]
+      "values": [
+        "   KEY [your key]        Sets your application key\nParameters:",
+        "     1.[your key]: StackApps provides a key to access the data, use that key here!\n"
+      ],
+      "color": "Cyan"
+    },
+    {
+      "key": "nett",
+      "values": [
+        "   NETT [time]        Sets internet connection timeout in miliseconds\nParameters:",
+        "     1.[time]: Time in miliseconds - Recommended value is 3000 miliseconds\n"
+      ],
+      "color": "Cyan"
+    },
+    {
+      "key": "slpt",
+      "values": [
+        "   SLPT [time]        Sets maximum sleep time in miliseconds\nParameters:",
+        "     1.[time]: Time in miliseconds - Recommended value is 20000 miliseconds\n"
+      ],
+      "color": "Cyan"
+    },
+    {
+      "key": "reqt",
+      "values": [
+        "   REQT [time]        Sets interval between requests time in miliseconds\nParameters:",
+        "     1.[time]: Time in miliseconds - Recommended value is 1500 miliseconds\n"
+      ],
+      "color": "Cyan"
     },
     {
       "key": "show",
       "values": [
-        "SHOW [user id] [data part]       Shows profile data by user id\nParameters:",
-        "   1.[user id]: User Id of any user on StackoverFlow",
-        "   2.[data part]: Only one of these options => {summary, reputation, comments, asnwers, questions}\n"
-      ]
+        "   SHOW [user id] [data part]       Shows profile data by user id\nParameters:",
+        "     1.[user id]: User Id of any user on StackoverFlow",
+        "     2.[data part]: Only one of these options => {summary, reputation, comments, asnwers, questions}\n"
+      ],
+      "color": "Cyan"
     },
     {
       "key": "save",
       "values": [
-        "SAVE [user id] [data part] [folder path]     Saves data by user id in a csv file\nParameters:",
-        "   1.[user id]: User Id of any user on StackoverFlow",
-        "   2.[data part]: Only one of these options => {summary, reputation, comments, asnwers, questions}",
-        "   3.[folder path]: Path that you want to create the file in\n"
-      ]
+        "   SAVE [user id] [data part] [folder path]     Saves data by user id in a csv file\nParameters:",
+        "     1.[user id]: User Id of any user on StackoverFlow",
+        "     2.[data part]: Only one of these options => {summary, reputation, comments, asnwers, questions}",
+        "     3.[folder path]: Path that you want to create the file in\n"
+      ],
+      "color": "Cyan"
     },
     {
       "key": "list",
       "values": [
-        "LIST [data part] [csv path]      Saves data by a list of users in a csv file\nParameters:",
-        "   1.[data part]: Only one of these options => {summary, reputation, comments, asnwers, questions}\n",
-        "   2.[csv path]: Path of the file of user ids - will read first column only"
-      ]
+        "   LIST [data part] [csv path]      Saves data by a list of users in a csv file\nParameters:",
+        "     1.[data part]: Only one of these options => {summary, reputation, comments, asnwers, questions}\n",
+        "     2.[csv path]: Path of the file of user ids - will read first column only"
+      ],
+      "color": "Cyan"
+    },
+    {
+      "key": "SUMMARY_HEADER",
+      "values": [ "Username, Reputation, Gold Badge, Silver Badge, Bronze Badge, Answer Count, Question Count, Signup Date\n" ]
+    },
+    {
+      "key": "ANSWER_HEADER",
+      "values": [ "Answer ID, Answer Date, UpVote Count, DownVote Count, Is Accepted, Content\n" ]
+    },
+    {
+      "key": "QUESTION_HEADER",
+      "values": [ "Question ID, Ask Date, Answer Count, UpVote Count, DownVote Count, Is Answered, View Count, Content\n" ]
+    },
+    {
+      "key": "REP_HEADER",
+      "values": [ "Earned Date, Value\n" ]
+    },
+    {
+      "key": "COMMENT_HEADER",
+      "values": [ "Comment ID, Post Date, Content, Point\n" ]
     },
     {
       "key": "ENT_CMD",
-      "values": [ "\nEnter command: " ]
+      "values": [ "\nEnter command: " ],
+      "color": "White"
     },
     {
       "key": "HELP_NOT_REC",
-      "values": ["Help command not recognized - Please enter a valid help command [key, show, save, list]! \n********************"]
+      "values": [ "Help command not recognized - Please enter a valid help command [key, show, save, list]! \n********************" ],
+      "color": "Red"
+    },
+    {
+      "key": "USER_ID_ERROR",
+      "values": [ "User id must be a Number! \n********************" ],
+      "color": "Red"
+    },
+    {
+      "key": "DATA_TYPE_NOT_REC",
+      "values": [ "Data type not recognized! \n********************" ],
+      "color": "Red"
+    },
+    {
+      "key": "NO_RESPONSE",
+      "values": [ "There was no response OR There was a problem getting data! \n********************" ],
+      "color": "Red"
+    },
+    {
+      "key": "STARTUP_KEY",
+      "values": [ "Your current key is {0} - If you wish to change it, Run KEY command" ],
+      "color": "Blue"
+    },
+    {
+      "key": "TIMES_CFG",
+      "values": [ "Request Interval is {0} miliseconds | Max Sleep is {1} miliseconds | Timeout is {2} miliseconds" ],
+      "color": "Blue"
+    },
+    {
+      "key": "ENTER_KEY",
+      "values": [ "Please enter your key! " ],
+      "color": "Blue"
+    },
+    {
+      "key": "KEY_SAVE",
+      "values": [ "Key Saved!\n" ],
+      "color": "Blue"
+    },
+    {
+      "key": "ENTER_TIME",
+      "values": [ "Please enter the time in miliseconds! " ],
+      "color": "Blue"
+    },
+    {
+      "key": "TIME_SAVE",
+      "values": [ "Time Saved!\n" ],
+      "color": "Blue"
+    },
+    {
+      "key": "FOLDER_PATH_NOT_PROV",
+      "values": [ "Folder path must be provided! \n********************" ],
+      "color": "Red"
+    },
+    {
+      "key": "FILE_SAVED",
+      "values": [ "File saved in {0} \n********************" ],
+      "color": "Green"
+    },
+    {
+      "key": "FILE_NO_ACCESS",
+      "values": [ "Could not access file path! \n********************" ],
+      "color": "Red"
+    },
+    {
+      "key": "LIST_MUST_CSV",
+      "values": [ "List must be a csv file! \n********************" ],
+      "color": "Red"
+    },
+    {
+      "key": "PROVIDE_FILE_PATH",
+      "values": [ "Please provide a file path! \n********************" ],
+      "color": "Red"
+    },
+    {
+      "key": "CANT_FIND_ID",
+      "values": [ "Could not find any IDs in file! \n********************" ],
+      "color": "Red"
+    },
+    {
+      "key": "CMD_NOT_REC",
+      "values": [ "Command not recognized! \n********************" ],
+      "color": "Red"
+    },
+    {
+      "key": "DONE",
+      "values": [ " Done! \n" ],
+      "color": "Green"
+    },
+    {
+      "key": "NO_DATA",
+      "values": [ "No data found! " ],
+      "color": "Red"
+    },
+    {
+      "key": "GETTING_DATA",
+      "values": [ "{2} : Getting {0} data for user {1} =>  " ],
+      "color": "DarkGreen"
+    },
+    {
+      "key": "NO_INTERNET",
+      "values": [ "Could not get any data from StackoverFlow website! Please check your connection \n********************" ],
+      "color": "Red"
+    },
+    {
+      "key": "BACKOFF",
+      "values": [ "Server limit reached! backing off for {0} miliseconds! \n********************" ],
+      "color": "Red"
+    },
+    {
+      "key": "QUOTA",
+      "values": [ "Server quota reached ({0})! backing off for {1} miliseconds! \n********************" ],
+      "color": "Red"
     }
   ]
 }
